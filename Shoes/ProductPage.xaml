@@ -11,12 +11,42 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="380"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <ListView Name="ProductListView" Grid.Row="1">
+        <StackPanel Name="SearchEtcStackPanel" Grid.Row="1" Orientation="Horizontal">
+            <StackPanel Orientation="Vertical" Margin="5">
+                <TextBlock Text="Поиск товаров" HorizontalAlignment="Left"
+                           FontSize="20"/>
+                <TextBox Name="SearchTB" Width="300" Height="30" FontSize="20"
+                         TextChanged="SearchTB_TextChanged"/>
+            </StackPanel>
+            
+            <StackPanel Orientation="Vertical" Margin="5">
+                <TextBlock Text="Сортировка по количеству на складе"
+                           FontSize="18"/>
+                <RadioButton Name="SortAscRB" Content="По возрастанию"
+                             FontSize="18"
+                             Checked="SortAscRB_Checked"/>
+                <RadioButton Name="SortDescRB" Content="По убыванию"
+                             FontSize="18"
+                             Checked="SortDescRB_Checked"/>
+            </StackPanel>
+
+            <ComboBox Name="SupplierCB"
+                      FontSize="20" Margin="5" Width="200" Height="30"
+                      SelectionChanged="SupplierCB_SelectionChanged">
+                <!--ItemsSource="{Binding ProductSupplier}"-->
+                <!--<TextBlock>Все поставщики</TextBlock>
+                <TextBlock></TextBlock>-->
+            </ComboBox>
+            
+        </StackPanel>
+
+        <ListView Name="ProductListView" Grid.Row="2">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid Background="{Binding ProductEntryBG}">

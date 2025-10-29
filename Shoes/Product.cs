@@ -33,6 +33,15 @@ namespace Shoes
         public string ProductDescription { get; set; }
         public string ProductPhoto { get; set; }
 
+        public string StringInfoCombined
+        {
+            get
+            {
+                return Article + "; " + ProductName + "; " + Unit + "; " + ProductSupplier + 
+                    "; " + ProductManufacturer + "; " + ProductCategory + "; " + ProductDescription;
+            }
+        }
+
         public string PhotoPath
         {
             get
@@ -57,17 +66,19 @@ namespace Shoes
             }
         }
 
-        public double PriceWDiscount
+        public decimal PriceWDiscount
         {
             get
             {
                 if (this.ProductDiscount > 0)
                 {
-                    return (double)this.ProductPrice - (double)this.ProductPrice * this.ProductDiscount / 100.0;
-                    //TODO trim to 2 nums after dot
+                    double newPrice = (double)this.ProductPrice - (double)this.ProductPrice * this.ProductDiscount / 100.0;
+
+                    return Convert.ToDecimal(string.Format("{0:F2}", newPrice));
+                        //Math.Round(newPrice,2,MidpointRounding.AwayFromZero);
                 }
                 else
-                    return (double)this.ProductPrice;
+                    return this.ProductPrice;
             }
         }
 
