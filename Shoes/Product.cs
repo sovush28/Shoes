@@ -47,7 +47,20 @@ namespace Shoes
             get
             {
                 if (ProductPhoto != null)
-                    return "img/" + ProductPhoto;
+                    return @"img\" + ProductPhoto;
+                else
+                    return null;
+            }
+        }
+
+        public string FullPhotoPath
+        {
+            get
+            {
+                if (ProductPhoto != null)
+                {
+                    return @"E:\VS Projects\4 курс\Shoes\Shoes\img\" + ProductPhoto;
+                }
                 else
                     return null;
             }

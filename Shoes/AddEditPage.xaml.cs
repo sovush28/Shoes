@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +26,7 @@ namespace Shoes
         private Product currentProduct = new Product();
 
         private bool isThisEditingMode;
+        private string newImagePath = "";
         public AddEditPage(Product selectedProduct)
         {
             InitializeComponent();
@@ -161,6 +164,29 @@ namespace Shoes
                 return;
             }
 
+            // Обработка изображения
+            if (newImagePath != null)
+            {
+                try
+                {
+                    // Удаляем старое изображение, если оно есть и мы в режиме редактирования
+                    if (isThisEditingMode && !string.IsNullOrEmpty(currentProduct.ProductPhoto))
+                    {
+                        DeleteOldImage(currentProduct.ProductPhoto);
+                    }
+
+                    // Сохраняем новое изображение
+                    string newFileName = SaveAndResizeImage(newImagePath);
+                    currentProduct.ProductPhoto = newFileName;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при обработке изображения: {ex.Message}");
+                    return;
+                }
+            }
+
+
             if (!isThisEditingMode)
                 ShoesDE2026Entities.GetContext().Product.Add(currentProduct);
 
@@ -175,5 +201,116 @@ namespace Shoes
                 MessageBox.Show(ex.ToString());
             }
         }
+
+        private void ChangePhotoBtn_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Image files (*.jpg; *.jpeg; *.png; *.bmp)|*.jpg; *.jpeg; *.png; *.bmp|All files (*.*)|*.*";
+            openFileDialog.FilterIndex = 1;
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    // Проверяем размер изображения
+                    BitmapImage image = new BitmapImage(new Uri(openFileDialog.FileName));
+                    if (image.PixelWidth > 300 || image.PixelHeight > 200)
+                    {
+                        MessageBox.Show("Размер изображения должен быть не более 300x200 пикселей. Изображение будет автоматически уменьшено.");
+                    }
+
+                    // Временно отображаем выбранное изображение
+                    PhotoImage.Source = new BitmapImage(new Uri(openFileDialog.FileName));
+                    newImagePath = openFileDialog.FileName;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}");
+                }
+            }
+        }
+
+        private string SaveAndResizeImage(string sourcePath)
+        {
+            string imagesFolder = GetImagesFolder();
+
+            // Создаем папку, если она не существует
+            /*if (!System.IO.Directory.Exists(imagesFolder))
+            {
+                System.IO.Directory.CreateDirectory(imagesFolder);
+            }*/
+
+            // Генерируем уникальное имя файла на основе артикула
+            string extension = System.IO.Path.GetExtension(sourcePath).ToLower();
+            string fileName = $"{currentProduct.Article}{extension}";
+            string fullPath = System.IO.Path.Combine(imagesFolder, fileName);
+
+            // Если файл с таким именем уже существует, добавляем суффикс
+            int counter = 1;
+            while (System.IO.File.Exists(fullPath))
+            {
+                fileName = $"{currentProduct.Article}_{counter}{extension}";
+                fullPath = System.IO.Path.Combine(imagesFolder, fileName);
+                counter++;
+            }
+
+            // Загружаем и изменяем размер изображения
+            BitmapImage originalImage = new BitmapImage(new Uri(sourcePath));
+
+            // Вычисляем новые размеры с сохранением пропорций
+            double scaleX = 300.0 / originalImage.PixelWidth;
+            double scaleY = 200.0 / originalImage.PixelHeight;
+            double scale = Math.Min(scaleX, scaleY);
+
+            int newWidth = (int)(originalImage.PixelWidth * scale);
+            int newHeight = (int)(originalImage.PixelHeight * scale);
+
+            // Создаем TransformedBitmap для изменения размера
+            TransformedBitmap transformedBitmap = new TransformedBitmap();
+            transformedBitmap.BeginInit();
+            transformedBitmap.Source = originalImage;
+            transformedBitmap.Transform = new ScaleTransform(scale, scale);
+            transformedBitmap.EndInit();
+
+            // Сохраняем изображение в формате JPEG для оптимального размера
+            BitmapEncoder encoder = new JpegBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(transformedBitmap));
+
+            using (System.IO.FileStream stream = new System.IO.FileStream(fullPath, System.IO.FileMode.Create))
+            {
+                encoder.Save(stream);
+            }
+
+            return fileName;
+        }
+
+        private void DeleteOldImage(string oldFileName)
+        {
+            if (!string.IsNullOrEmpty(oldFileName))
+            {
+                try
+                {
+                    string imagesFolder = GetImagesFolder();
+                    string oldFilePath = System.IO.Path.Combine(imagesFolder, oldFileName);
+
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Логируем ошибку, но не прерываем выполнение
+                    System.Diagnostics.Debug.WriteLine($"Ошибка при удалении старого изображения: {ex.Message}");
+                }
+            }
+        }
+
+        private string GetImagesFolder()
+        {
+            // Жестко заданный путь к папке с изображениями
+            return @"E:\VS Projects\4 курс\Shoes\Shoes\img\";
+        }
+
     }
 }

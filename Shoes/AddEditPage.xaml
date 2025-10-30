@@ -13,6 +13,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
+            <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
@@ -141,8 +142,26 @@
             HorizontalAlignment="Left" VerticalAlignment="Center"
                 />
 
+        <StackPanel Orientation="Vertical" Grid.Row="0" Grid.RowSpan="10" Grid.Column="2"
+                    VerticalAlignment="Center">
+            <Image Name="PhotoImage" Margin="10"
+                   Width="150" Height="150" Stretch="UniformToFill">
+                <Image.Source>
+                    <Binding Path="PhotoPath">
+                        <Binding.TargetNullValue>
+                            <ImageSource>
+                                icons/picture.png
+                            </ImageSource>
+                        </Binding.TargetNullValue>
+                    </Binding>
+                </Image.Source>
+            </Image>
+            <Button Name="ChangePhotoBtn" Content="Выбрать фото"
+                    Click="ChangePhotoBtn_Click"/>
+        </StackPanel>
+        
         <Button Name="SaveBtn" Content="Сохранить"
-                Grid.Row="10" Grid.ColumnSpan="2"
+                Grid.Row="10" Grid.ColumnSpan="3"
                 Click="SaveBtn_Click"/>
 
     </Grid>
