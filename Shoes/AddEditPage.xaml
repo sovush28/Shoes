@@ -1,0 +1,149 @@
+﻿<Page x:Class="Shoes.AddEditPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Shoes"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="AddEditPage"
+      FontFamily="Times New Roman">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Артикул:"
+                   FontSize="18" Grid.Row="0" Grid.Column="0"
+                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                   />
+        <TextBox Name="ArticleTB" Width="200"
+                 Text="{Binding Article}"
+                 FontSize="20" Grid.Row="0" Grid.Column="1"
+                 HorizontalAlignment="Left" VerticalAlignment="Center"
+                 />
+
+        <TextBlock Text="Наименование:"
+           FontSize="18" Grid.Row="1" Grid.Column="0"
+           HorizontalAlignment="Right" VerticalAlignment="Center"
+           />
+        <TextBox Name="ProductNameTB" Width="200"
+                 Text="{Binding ProductName}"
+         FontSize="20" Grid.Row="1" Grid.Column="1"
+         HorizontalAlignment="Left" VerticalAlignment="Center"
+         />
+
+        <TextBlock Text="Единица измерения:"
+           FontSize="18" Grid.Row="2" Grid.Column="0"
+           HorizontalAlignment="Right" VerticalAlignment="Center"
+           />
+        <TextBox Name="UnitTB" Width="200"
+                 Text="{Binding Unit}"
+         FontSize="20" Grid.Row="2" Grid.Column="1"
+         HorizontalAlignment="Left" VerticalAlignment="Center"
+         />
+
+        <TextBlock Text="Цена:"
+           FontSize="18" Grid.Row="3" Grid.Column="0"
+           HorizontalAlignment="Right" VerticalAlignment="Center"
+           />
+        <TextBox Name="PriceTB" Width="200"
+                 Text="{Binding ProductPrice}"
+         FontSize="20" Grid.Row="3" Grid.Column="1"
+         HorizontalAlignment="Left" VerticalAlignment="Center"
+         />
+
+        <TextBlock Text="Поставщик:"
+           FontSize="18" Grid.Row="4" Grid.Column="0"
+           HorizontalAlignment="Right" VerticalAlignment="Center"
+           />
+        <TextBox Name="SupplierTB" Width="200"
+                 Text="{Binding ProductSupplier}"
+         FontSize="20" Grid.Row="4" Grid.Column="1"
+         HorizontalAlignment="Left" VerticalAlignment="Center"
+         />
+
+        <TextBlock Text="Производитель:"
+           FontSize="18" Grid.Row="5" Grid.Column="0"
+           HorizontalAlignment="Right" VerticalAlignment="Center"
+           />
+        <!--<TextBox Name="ManufacturerTB" Width="200"
+                 Text="{Binding ProductManufacturer}"
+         FontSize="20" Grid.Row="5" Grid.Column="1"
+         HorizontalAlignment="Left" VerticalAlignment="Center"
+         />-->
+        <ComboBox Name="ManufacturerCB" SelectedValue="{Binding ProductManufacturer}"
+          Width="250" Height="25" FontSize="20"
+          Grid.Row="5" Grid.Column="1"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+                  Margin="5"
+          />
+
+        <TextBlock Text="Категория товара:"
+           FontSize="18" Grid.Row="6" Grid.Column="0"
+           HorizontalAlignment="Right" VerticalAlignment="Center"
+           />
+        <!--<TextBox Name="CategoryTB" Width="200"
+                 Text="{Binding ProductCategory}"
+         FontSize="20" Grid.Row="6" Grid.Column="1"
+         HorizontalAlignment="Left" VerticalAlignment="Center"
+         />-->
+        <ComboBox Name="CategoryCB" SelectedValue="{Binding ProductCategory}"
+                  Width="250" Height="25" FontSize="20"
+                  Grid.Row="6" Grid.Column="1"
+                  HorizontalAlignment="Left" VerticalAlignment="Center"
+                  Margin="5"
+                  />
+
+        <TextBlock Text="Скидка:"
+           FontSize="18" Grid.Row="7" Grid.Column="0"
+           HorizontalAlignment="Right" VerticalAlignment="Center"
+           />
+        <TextBox Name="DiscountTB" Width="200"
+                 Text="{Binding ProductDiscount}"
+         FontSize="20" Grid.Row="7" Grid.Column="1"
+         HorizontalAlignment="Left" VerticalAlignment="Center"
+         />
+
+        <TextBlock Text="Количество на складе:"
+           FontSize="18" Grid.Row="8" Grid.Column="0"
+           HorizontalAlignment="Right" VerticalAlignment="Center"
+           />
+        <TextBox Name="QInStockTB" Width="200"
+                 Text="{Binding QuantityInStock}"
+         FontSize="20" Grid.Row="8" Grid.Column="1"
+         HorizontalAlignment="Left" VerticalAlignment="Center"
+         />
+
+        <TextBlock Text="Описание товара:"
+            FontSize="18" Grid.Row="9" Grid.Column="0"
+            HorizontalAlignment="Right" VerticalAlignment="Center"
+            />
+        <TextBox Name="DescriptionTB" Width="350" Height="55"
+                 Text="{Binding ProductDescription}"
+                 TextWrapping="Wrap"
+            FontSize="20" Grid.Row="9" Grid.Column="1"
+            HorizontalAlignment="Left" VerticalAlignment="Center"
+                />
+
+        <Button Name="SaveBtn" Content="Сохранить"
+                Grid.Row="10" Grid.ColumnSpan="2"
+                Click="SaveBtn_Click"/>
+
+    </Grid>
+</Page>

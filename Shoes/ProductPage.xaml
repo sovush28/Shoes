@@ -7,15 +7,29 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="ProductPage"
-      FontFamily="Times New Roman">
+      FontFamily="Times New Roman"
+      IsVisibleChanged="Page_IsVisibleChanged">
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="380"/>
-            <RowDefinition/>
+            <RowDefinition Height="400"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Right"
+                    Grid.Row="0" Margin="5">
+            <WrapPanel HorizontalAlignment="Right">
+                <TextBlock Text="Вы вошли как: " FontWeight="Bold"
+                           FontSize="18"/>
+                <TextBlock Name="UserNameTB" FontSize="18"/>
+            </WrapPanel>
+            <WrapPanel HorizontalAlignment="Right">
+                <TextBlock Text="Роль: " FontWeight="Bold" FontSize="18"/>
+                <TextBlock Name="UserRoleTB" FontSize="18"/>
+            </WrapPanel>
+        </StackPanel>
 
         <StackPanel Name="SearchEtcStackPanel" Grid.Row="1" Orientation="Horizontal">
             <StackPanel Orientation="Vertical" Margin="5">
@@ -37,7 +51,7 @@
             </StackPanel>
 
             <ComboBox Name="SupplierCB"
-                      FontSize="20" Margin="5" Width="200" Height="30"
+                      FontSize="20" Margin="5" Width="250" Height="30"
                       SelectionChanged="SupplierCB_SelectionChanged">
                 <!--ItemsSource="{Binding ProductSupplier}"-->
                 <!--<TextBlock>Все поставщики</TextBlock>
@@ -47,6 +61,11 @@
         </StackPanel>
 
         <ListView Name="ProductListView" Grid.Row="2">
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Добавить в заказ" Click="MenuItem_Click" />
+                </ContextMenu>
+            </ListView.ContextMenu>
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid Background="{Binding ProductEntryBG}">
@@ -62,7 +81,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="200"/>
                             <ColumnDefinition Width="400"/>
-                            <ColumnDefinition Width="190"/>
+                            <ColumnDefinition Width="250"/>
                         </Grid.ColumnDefinitions>
                         <Image Grid.Row="0" Grid.RowSpan="7" Stretch="UniformToFill" Margin="10">
                             <Image.Source>
@@ -133,18 +152,40 @@
                         </TextBlock>
 
                         <WrapPanel Grid.Column="2" Grid.RowSpan="7"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center">
+                                   HorizontalAlignment="Center" Margin="30"
+                                   VerticalAlignment="Top">
+                            <TextBlock Text="Скидка: " FontSize="20"/>
                             <TextBlock Text="{Binding ProductDiscount}"
                                        FontSize="20"
                                        />
                             <TextBlock Text="%" FontSize="20"/>
                         </WrapPanel>
 
+                        <StackPanel Orientation="Vertical" Grid.RowSpan="7" Grid.Column="2"
+                                    VerticalAlignment="Bottom" Margin="8"
+                                    Name="EditDeleteBtnsStackPanel">
+                            <Button Name="EditBtn" Content="Редактировать"
+                                    Click="EditBtn_Click"/>
+                            <Button Name="DeleteBtn" Content="Удалить"
+                                    Click="DeleteBtn_Click"/>
+                        </StackPanel>
+                            
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        
+
+        <Button Name="AddBtn" Content="Добавить товар"
+                Grid.Row="3" HorizontalAlignment="Right" Margin="10"
+                Click="AddBtn_Click"/>
+
+        <Button Name="OrderBtn" Content="Текущий заказ"
+                Grid.Row="3" HorizontalAlignment="Center" Margin="10"
+                Click="OrderBtn_Click"/>
+
+        <Button Name="ViewOrdersBtn" Content="Все заказы"
+                Grid.Row="3" HorizontalAlignment="Left" Margin="10"
+                Click="ViewOrdersBtn_Click" />
+
     </Grid>
 </Page>

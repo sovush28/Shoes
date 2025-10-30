@@ -27,6 +27,14 @@ namespace Shoes
         public string UserPatronymic { get; set; }
         public string UserLogin { get; set; }
         public string UserPassword { get; set; }
+
+        public string UserRoleString
+        {
+            get
+            {
+                return Role.RoleName;
+            }
+        }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Order> Order { get; set; }

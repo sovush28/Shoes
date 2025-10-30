@@ -27,14 +27,31 @@ namespace Shoes
 
         private void LoginBtn_Click(object sender, RoutedEventArgs e)
         {
-            //TODO
-            Manager.MainFrame.Navigate(new ProductPage());
+            if(LoginTB.Text.Trim()==""||PasswTB.Text.Trim() == "")
+            {
+                MessageBox.Show("Заполните пустые поля");
+                return;
+            }
+
+            User user = ShoesDE2026Entities.GetContext().User.ToList().Find(u => u.UserLogin == LoginTB.Text.Trim() && u.UserPassword == PasswTB.Text.Trim());
+            if (user == null)
+            {
+                MessageBox.Show("Введены неверные данные");
+                return;
+            }
+
+            Manager.MainFrame.Navigate(new ProductPage(user));
         }
 
         private void LoginGuestBtn_Click(object sender, RoutedEventArgs e)
         {
-            //TODO (null)
-            Manager.MainFrame.Navigate(new ProductPage());
+            Manager.MainFrame.Navigate(new ProductPage(null));
+        }
+
+        private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            LoginTB.Text = "";
+            PasswTB.Text = "";
         }
     }
 }
