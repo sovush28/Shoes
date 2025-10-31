@@ -20,7 +20,8 @@ namespace Shoes
     /// </summary>
     public partial class ProductPage : Page
     {
-        // public currentorder= new orderproduct?
+        List<Product> selectedProductsToOrder = new List<Product>();
+        List<OrderProduct> selectedOrderProducts = new List<OrderProduct>();
 
         public ProductPage(User currentUser)
         {
@@ -93,7 +94,6 @@ namespace Shoes
             {
                 SupplierCBItems.Add(supplier);
             }
-            //SupplierCB.ItemsSource = currentProducts.Select(p => p.ProductSupplier).Distinct().ToList();
             SupplierCB.ItemsSource = SupplierCBItems;
 
             UpdateProducts();
@@ -216,11 +216,6 @@ namespace Shoes
             UpdateProducts();
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void AddBtn_Click(object sender, RoutedEventArgs e)
         {
             Manager.MainFrame.Navigate(new AddEditPage(null));
@@ -260,7 +255,43 @@ namespace Shoes
             Manager.MainFrame.Navigate(new AddEditPage((sender as Button).DataContext as Product));
         }
 
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (ProductListView.SelectedIndex >= 0)
+            {
+                var prodClicked = ProductListView.SelectedItem as Product;
+
+                var existingProduct = selectedProductsToOrder.FirstOrDefault(sp => sp.Article == prodClicked.Article);
+                if (existingProduct != null)
+                    existingProduct.QuantityInOrder++;
+                else
+                {
+                    prodClicked.QuantityInOrder = 1;
+                    selectedProductsToOrder.Add(prodClicked);
+                }
+
+                var existingOrderProduct = selectedOrderProducts.FirstOrDefault(sop => sop.ProductArticle == prodClicked.Article);
+                if (existingOrderProduct != null)
+                    existingOrderProduct.ProductQuantity++;
+                else
+                {
+                    var newOrderProduct = new OrderProduct
+                    {
+                        OrderID = ShoesDE2026Entities.GetContext().Order.Max(op => op.ID) + 1,
+                        ProductArticle = prodClicked.Article,
+                        ProductQuantity = 1
+                    };
+                    selectedOrderProducts.Add(newOrderProduct);
+                }
+            }
+        }
+
         private void OrderBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ViewOrdersBtn_Click(object sender, RoutedEventArgs e)
         {
 
         }
@@ -268,11 +299,6 @@ namespace Shoes
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             UpdateProducts();
-        }
-
-        private void ViewOrdersBtn_Click(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

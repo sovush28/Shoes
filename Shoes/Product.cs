@@ -95,6 +95,11 @@ namespace Shoes
             }
         }
 
+        public int QuantityInOrder
+        {
+            get; set;
+        }
+
         public SolidColorBrush ProductEntryBG
         {
             get

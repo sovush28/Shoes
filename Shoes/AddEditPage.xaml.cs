@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -62,22 +63,39 @@ namespace Shoes
         }
 
         /// /////////////////////////////////////////////////////////
-        private string CheckArticle(string article)
+
+        public string CheckArticle(string article)
         {
             string msg = "";
 
-            article = article.Trim();
+            article = article.ToUpper().Trim();
 
             if (article.Length != 6)
                 msg = "Длина артикула должна составлять 6 символов";
             else
             {
-                var prodWSameArticle = ShoesDE2026Entities.GetContext().Product.ToList().Where(p => p.Article == article);
-                if (prodWSameArticle.Count() > 0)
-                    msg = "Товар с таким артикулом уже существует";
+                // проверка на допустимые символы
+                foreach (char c in article)
+                {
+                    if (!((c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')))
+                    {
+                        msg = "Артикул может содержать только латинские буквы и цифры";
+                        break;
+                    }
+                }
             }
 
             return msg;
+        }
+
+        /// /////////////////////////////////////////////////////////
+
+        private string GetArticleErrorMsg(string article)
+        {
+            var validator = new ProductArticleValidator();
+
+            return
+                validator.CheckArticle(article);
         }
 
         private void SaveBtn_Click(object sender, RoutedEventArgs e)
@@ -86,13 +104,22 @@ namespace Shoes
 
             if (!isThisEditingMode)
             {
+                currentProduct.Article = currentProduct.Article.ToUpper();
+
                 string articleErrorMsg = "";
 
                 if (string.IsNullOrWhiteSpace(currentProduct.Article))
                     errors.AppendLine("Введите артикул товара");
                 else
                 {
-                    articleErrorMsg = CheckArticle(currentProduct.Article.Trim());
+                    if (string.IsNullOrEmpty(GetArticleErrorMsg(currentProduct.Article.Trim())))
+                    {
+                        var prodWSameArticle = ShoesDE2026Entities.GetContext().Product.ToList().Where(p => p.Article == currentProduct.Article.Trim());
+                        if (prodWSameArticle.Count() > 0)
+                            errors.AppendLine("Товар с таким артикулом уже существует");
+                    }
+
+                    articleErrorMsg = GetArticleErrorMsg(currentProduct.Article.Trim());
                     if (articleErrorMsg.Length > 0)
                         errors.AppendLine(articleErrorMsg);
                     /*if (currentProduct.Article.Trim().Length != 6)
