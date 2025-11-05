@@ -87,7 +87,7 @@ namespace ShoesUnitTests
         [TestMethod]
         public void CheckArticle_HasSpecialCharacter_ReturnsMsg()
         {
-            string article = "Q23!t9", expected = "Артикул может содержать только латинские буквы и цифры";
+            string article = "Q!23t9", expected = "Артикул может содержать только латинские буквы и цифры";
 
             ProductArticleValidator pav = new ProductArticleValidator();
             string actual = pav.CheckArticle(article);

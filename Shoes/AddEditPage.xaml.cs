@@ -41,6 +41,8 @@ namespace Shoes
 
                 ManufacturerCB.SelectedValue = currentProduct.ProductManufacturer;
                 CategoryCB.SelectedValue = currentProduct.ProductCategory;
+
+                loadProductImage();
             }
             else
                 isThisEditingMode = false;
@@ -60,6 +62,59 @@ namespace Shoes
                 allCategories.Add(prod.ProductCategory.ToString());
             }
             CategoryCB.ItemsSource = allCategories.Distinct();
+        }
+
+        private void loadProductImage()
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(currentProduct.ProductPhoto))
+                {
+                    string imagePath = GetFullImagePath(currentProduct.ProductPhoto);
+                    if (File.Exists(imagePath))
+                    {
+                        BitmapImage bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri(imagePath);
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.EndInit();
+                        PhotoImage.Source = bitmap;
+                    }
+                    else
+                    {
+                        // Если файл не найден, устанавливаем изображение по умолчанию
+                        SetDefaultImage();
+                    }
+                }
+                else
+                {
+                    SetDefaultImage();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}");
+                SetDefaultImage();
+            }
+        }
+
+        private void SetDefaultImage()
+        {
+            try
+            {
+                // Устанавливаем изображение по умолчанию из ресурсов
+                PhotoImage.Source = new BitmapImage(new Uri("pack://application:,,,/icons/picture.png"));
+            }
+            catch
+            {
+                // Если не удалось загрузить изображение по умолчанию, очищаем
+                PhotoImage.Source = null;
+            }
+        }
+
+        private string GetFullImagePath(string fileName)
+        {
+            return System.IO.Path.Combine(GetImagesFolder(), fileName);
         }
 
         /// /////////////////////////////////////////////////////////
@@ -98,20 +153,22 @@ namespace Shoes
                 validator.CheckArticle(article);
         }
 
+        // 94d5ous@gmail.com
+        // uzWC67
         private void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
             StringBuilder errors = new StringBuilder();
 
             if (!isThisEditingMode)
             {
-                currentProduct.Article = currentProduct.Article.ToUpper();
-
-                string articleErrorMsg = "";
+                string articleErrorMsg = null;
 
                 if (string.IsNullOrWhiteSpace(currentProduct.Article))
                     errors.AppendLine("Введите артикул товара");
                 else
                 {
+                    currentProduct.Article = currentProduct.Article.ToUpper();
+
                     if (string.IsNullOrEmpty(GetArticleErrorMsg(currentProduct.Article.Trim())))
                     {
                         var prodWSameArticle = ShoesDE2026Entities.GetContext().Product.ToList().Where(p => p.Article == currentProduct.Article.Trim());
@@ -120,8 +177,10 @@ namespace Shoes
                     }
 
                     articleErrorMsg = GetArticleErrorMsg(currentProduct.Article.Trim());
-                    if (articleErrorMsg.Length > 0)
+
+                    if (articleErrorMsg != null && articleErrorMsg.Length > 0)
                         errors.AppendLine(articleErrorMsg);
+
                     /*if (currentProduct.Article.Trim().Length != 6)
                         errors.AppendLine("Длина артикула должна составлять 6 символов");
                     else
@@ -139,11 +198,6 @@ namespace Shoes
 
             if (string.IsNullOrWhiteSpace(currentProduct.Unit))
                 errors.AppendLine("Введите ед. измерения товара");
-
-            /*           
-            if (!int.TryParse(BuildingTB.Text.Trim(), out int building))
-                errors.AppendLine("Номер здания должен быть целым числом");
-            */
 
             if (!decimal.TryParse(PriceTB.Text.Trim(), out decimal curProdPrice))
                 errors.AppendLine("Цена товара должна быть числом");
@@ -192,7 +246,7 @@ namespace Shoes
             }
 
             // Обработка изображения
-            if (newImagePath != null)
+            if (!string.IsNullOrEmpty(newImagePath))
             {
                 try
                 {
@@ -238,9 +292,17 @@ namespace Shoes
             if (openFileDialog.ShowDialog() == true)
             {
                 try
-                {
+                {                    
+                    //BitmapImage image = new BitmapImage(new Uri(openFileDialog.FileName));
+
+                    // Загружаем изображение для предпросмотра
+                    BitmapImage image = new BitmapImage();
+                    image.BeginInit();
+                    image.UriSource = new Uri(openFileDialog.FileName);
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.EndInit();
+
                     // Проверяем размер изображения
-                    BitmapImage image = new BitmapImage(new Uri(openFileDialog.FileName));
                     if (image.PixelWidth > 300 || image.PixelHeight > 200)
                     {
                         MessageBox.Show("Размер изображения должен быть не более 300x200 пикселей. Изображение будет автоматически уменьшено.");
@@ -262,19 +324,19 @@ namespace Shoes
             string imagesFolder = GetImagesFolder();
 
             // Создаем папку, если она не существует
-            /*if (!System.IO.Directory.Exists(imagesFolder))
+            if (!Directory.Exists(imagesFolder))
             {
-                System.IO.Directory.CreateDirectory(imagesFolder);
-            }*/
+                Directory.CreateDirectory(imagesFolder);
+            }
 
-            // Генерируем уникальное имя файла на основе артикула
+            // Генерируем уникальное имя файла
             string extension = System.IO.Path.GetExtension(sourcePath).ToLower();
             string fileName = $"{currentProduct.Article}{extension}";
             string fullPath = System.IO.Path.Combine(imagesFolder, fileName);
 
             // Если файл с таким именем уже существует, добавляем суффикс
             int counter = 1;
-            while (System.IO.File.Exists(fullPath))
+            while (File.Exists(fullPath))
             {
                 fileName = $"{currentProduct.Article}_{counter}{extension}";
                 fullPath = System.IO.Path.Combine(imagesFolder, fileName);
@@ -284,31 +346,79 @@ namespace Shoes
             // Загружаем и изменяем размер изображения
             BitmapImage originalImage = new BitmapImage(new Uri(sourcePath));
 
-            // Вычисляем новые размеры с сохранением пропорций
+            // Вычисляем масштаб
             double scaleX = 300.0 / originalImage.PixelWidth;
             double scaleY = 200.0 / originalImage.PixelHeight;
             double scale = Math.Min(scaleX, scaleY);
 
-            int newWidth = (int)(originalImage.PixelWidth * scale);
-            int newHeight = (int)(originalImage.PixelHeight * scale);
-
             // Создаем TransformedBitmap для изменения размера
-            TransformedBitmap transformedBitmap = new TransformedBitmap();
-            transformedBitmap.BeginInit();
-            transformedBitmap.Source = originalImage;
-            transformedBitmap.Transform = new ScaleTransform(scale, scale);
-            transformedBitmap.EndInit();
+            TransformedBitmap resizedImage = new TransformedBitmap();
+            resizedImage.BeginInit();
+            resizedImage.Source = originalImage;
+            resizedImage.Transform = new ScaleTransform(scale, scale);
+            resizedImage.EndInit();
 
-            // Сохраняем изображение в формате JPEG для оптимального размера
+            // Сохраняем изображение
             BitmapEncoder encoder = new JpegBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(transformedBitmap));
+            encoder.Frames.Add(BitmapFrame.Create(resizedImage));
 
-            using (System.IO.FileStream stream = new System.IO.FileStream(fullPath, System.IO.FileMode.Create))
+            using (FileStream stream = new FileStream(fullPath, FileMode.Create))
             {
                 encoder.Save(stream);
             }
 
             return fileName;
+
+            /* string imagesFolder = GetImagesFolder();
+
+             // Создаем папку, если она не существует
+             *//*if (!System.IO.Directory.Exists(imagesFolder))
+             {
+                 System.IO.Directory.CreateDirectory(imagesFolder);
+             }*//*
+
+             // Генерируем уникальное имя файла на основе артикула
+             string extension = System.IO.Path.GetExtension(sourcePath).ToLower();
+             string fileName = $"{currentProduct.Article}{extension}";
+             string fullPath = System.IO.Path.Combine(imagesFolder, fileName);
+
+             // Если файл с таким именем уже существует, добавляем суффикс
+             int counter = 1;
+             while (System.IO.File.Exists(fullPath))
+             {
+                 fileName = $"{currentProduct.Article}_{counter}{extension}";
+                 fullPath = System.IO.Path.Combine(imagesFolder, fileName);
+                 counter++;
+             }
+
+             // Загружаем и изменяем размер изображения
+             BitmapImage originalImage = new BitmapImage(new Uri(sourcePath));
+
+             // Вычисляем новые размеры с сохранением пропорций
+             double scaleX = 300.0 / originalImage.PixelWidth;
+             double scaleY = 200.0 / originalImage.PixelHeight;
+             double scale = Math.Min(scaleX, scaleY);
+
+             int newWidth = (int)(originalImage.PixelWidth * scale);
+             int newHeight = (int)(originalImage.PixelHeight * scale);
+
+             // Создаем TransformedBitmap для изменения размера
+             TransformedBitmap transformedBitmap = new TransformedBitmap();
+             transformedBitmap.BeginInit();
+             transformedBitmap.Source = originalImage;
+             transformedBitmap.Transform = new ScaleTransform(scale, scale);
+             transformedBitmap.EndInit();
+
+             // Сохраняем изображение в формате JPEG для оптимального размера
+             BitmapEncoder encoder = new JpegBitmapEncoder();
+             encoder.Frames.Add(BitmapFrame.Create(transformedBitmap));
+
+             using (System.IO.FileStream stream = new System.IO.FileStream(fullPath, System.IO.FileMode.Create))
+             {
+                 encoder.Save(stream);
+             }
+
+             return fileName;*/
         }
 
         private void DeleteOldImage(string oldFileName)

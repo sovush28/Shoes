@@ -28,14 +28,6 @@ namespace Shoes
                     }
                 }
 
-                /*
-                if (string.IsNullOrEmpty(msg))
-                {
-                    var prodWSameArticle = ShoesDE2026Entities.GetContext().Product.ToList().Where(p => p.Article == article);
-                    if (prodWSameArticle.Count() > 0)
-                        msg = "Товар с таким артикулом уже существует";
-                }
-                */
             }
 
             return msg;
